@@ -1,0 +1,47 @@
+html {
+    background-color: grey;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+.selectable {
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.snow-globe-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+}
+
+.snow-globe-container:active {
+    cursor: grabbing;
+}
+
+.instructions {
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    white-space: nowrap;
+    pointer-events: none;
+}

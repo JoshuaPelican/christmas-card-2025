@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Christmas Card</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <div class="snow-globe-container selectable" id="snowGlobe">
+        <svg width="300" height="300" viewBox="0 0 300 300" id="globeSvg">
+            <defs>
+                <radialGradient id="glassGradient" cx="30%" cy="30%" r="60%">
+                    <stop offset="0%" style="stop-color: rgba(255,255,255,0.3)" />
+                    <stop offset="100%" style="stop-color: rgba(255,255,255,0)" />
+                </radialGradient>
+
+                <radialGradient id="bgGradient" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" style="stop-color: #4a6fa5" />
+                    <stop offset="100%" style="stop-color: #2d4a6f" />
+                </radialGradient>
+
+                <clipPath id="globeClip">
+                    <circle cx="150" cy="150" r="130" />
+                </clipPath>
+            </defs>
+
+            <!-- Base of snow globe -->
+            <ellipse cx="150" cy="285" rx="80" ry="15" fill="#5d4037" />
+            <rect x="70" y="275" width="160" height="20" fill="#5d4037" />
+            <ellipse cx="150" cy="275" rx="80" ry="15" fill="#795548" />
+
+            <!-- Globe background -->
+            <circle cx="150" cy="150" r="135" fill="#1a2a3a" />
+            <circle cx="150" cy="150" r="130" fill="url(#bgGradient)" />
+
+            <!-- Snow particles container -->
+            <g id="snowContainer" clip-path="url(#globeClip)"></g>
+
+            <!-- Scene inside globe -->
+            <g clip-path="url(#globeClip)">
+                <ellipse cx="150" cy="270" rx="120" ry="20" fill="rgba(255,255,255,0.3)" />
+                <polygon points="150,180 130,220 170,220" fill="#2d5a3d" />
+                <polygon points="150,160 125,210 175,210" fill="#3d7a4d" />
+                <polygon points="150,140 120,200 180,200" fill="#4d9a5d" />
+                <rect x="145" y="220" width="10" height="15" fill="#5d4037" />
+            </g>
+
+            <!-- Glass reflection overlay -->
+            <circle cx="150" cy="150" r="130" fill="url(#glassGradient)" />
+
+            <!-- Globe border -->
+            <circle cx="150" cy="150" r="130" fill="none" stroke="#8ba5c4" stroke-width="3" />
+        </svg>
+        <div class="instructions">Drag to shake the snow globe!</div>
+    </div>
+
+    <script src="js/selectable.js"></script>
+    <script src="js/snowglobe.js"></script>
+    <script src="js/history.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
