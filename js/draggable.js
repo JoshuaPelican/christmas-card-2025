@@ -68,8 +68,7 @@ function initializeDraggable(draggable) {
         const adjustedOffsetX = state.offsetX / scale;
         const adjustedOffsetY = state.offsetY / scale;
 
-        draggable.style.left = (pos.x - adjustedOffsetX) + 'px';
-        draggable.style.top = (pos.y - adjustedOffsetY) + 'px';
+        draggable.style.transform = `translate(${pos.x - adjustedOffsetX}px, ${pos.y - adjustedOffsetY}px)`;
 
         // Check if we've moved enough to count as a drag
         const totalMove = Math.abs(pos.x - state.startX) + Math.abs(pos.y - state.startY);
