@@ -1,6 +1,6 @@
 // Configuration
 const CONFIG = {
-    particleCount: 1000,
+    particleCount: 200,
     gravity: 0.015,
     minSize: 2,
     maxSize: 5,
@@ -27,11 +27,12 @@ let accumulatedMovement = { x: 0, y: 0 };
 
 // DOM elements
 const container = document.getElementById('snowGlobe');
-const snowContainer = document.getElementById('snowContainer');
+const snowContainerFront = document.getElementById('snowContainerFront');
+const snowContainerBack = document.getElementById('snowContainerBack')
 
 // Initialize particles at rest at the bottom
 function createParticles() {
-    snowContainer.innerHTML = '';
+    snowContainerFront.innerHTML = '';
     particles = [];
 
     for (let i = 0; i < CONFIG.particleCount; i++) {
@@ -60,7 +61,8 @@ function createParticles() {
         
         particle.element = circle;
         particles.push(particle);
-        snowContainer.appendChild(circle);
+        
+        Math.random() > 0.5 ? snowContainerFront.appendChild(circle) : snowContainerBack.appendChild(circle);
         
         updateParticlePosition(particle);
     }
@@ -202,10 +204,15 @@ function updatePhysics() {
     requestAnimationFrame(updatePhysics);
 }
 
-// Listen to drag events from selectable.js
-container.addEventListener('selectableDrag', (e) => {
-    const { deltaX, deltaY } = e.detail;
-    
+
+// Called when dragging starts
+function onDragStart(x, y) {
+    accumulatedMovement = { x: 0, y: 0 };
+}
+
+// Called during drag movement
+function onDragMove(deltaX, deltaY, x, y) {
+
     // Accumulate movement
     accumulatedMovement.x += deltaX;
     accumulatedMovement.y += deltaY;
@@ -228,27 +235,40 @@ container.addEventListener('selectableDrag', (e) => {
             particle.vy -= moveIntensity * 0.1 * Math.random();
         }
     });
-});
+}
 
-container.addEventListener('selectableDragEnd', (e) => {
-    const { velocityX, velocityY } = e.detail;
-    
+// Called when dragging ends
+function onDragEnd() {    
     // Determine swirl direction
     const moveAngle = Math.atan2(accumulatedMovement.y, accumulatedMovement.x);
     
     // Give particles final push
     particles.forEach(particle => {
-        const pushStrength = swirlEnergy * 0.3 * Math.random();
+        const pushStrength = swirlEnergy * 0.3 * Math.random() * ((accumulatedMovement.x + accumulatedMovement.y / 2) * 0.1);
         particle.vx += Math.cos(moveAngle + Math.PI/2) * pushStrength;
         particle.vy += Math.sin(moveAngle + Math.PI/2) * pushStrength;
     });
     
     // Reset accumulated movement
     accumulatedMovement = { x: 0, y: 0 };
-});
+}
+
+// Register with selectable system
+// Wait a moment for selectable.js to initialize
+function registerWithSelectable() {
+    if (typeof onSelectableDrag === 'function') {
+        onSelectableDrag('snowGlobe', {
+            onStart: onDragStart,
+            onMove: onDragMove,
+            onEnd: onDragEnd
+        });
+    } else {
+        // Retry if selectable.js hasn't loaded yet
+        setTimeout(registerWithSelectable, 10);
+    }
+}
 
 // Initialize
-if (container && snowContainer) {
-    createParticles();
-    updatePhysics();
-}
+createParticles();
+updatePhysics();
+registerWithSelectable();

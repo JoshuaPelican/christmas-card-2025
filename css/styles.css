@@ -1,47 +1,138 @@
-html {
-    background-color: grey;
-}
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html,
 body {
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     font-family: Arial, sans-serif;
     overflow: hidden;
 }
 
 .selectable {
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.selectable:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.selectable.selected {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.selectable-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.selectable-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.draggable {
     cursor: grab;
-    touch-action: none;
     user-select: none;
     -webkit-user-select: none;
+    touch-action: none;
 }
 
-.snow-globe-container {
-    position: relative;
-    width: 300px;
-    height: 300px;
-}
-
-.snow-globe-container:active {
+.draggable:active {
     cursor: grabbing;
+}
+
+/* Snow globe specific styles */
+.snow-globe-container {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .instructions {
     position: absolute;
-    bottom: -50px;
+    bottom: -30px;
     left: 50%;
     transform: translateX(-50%);
     color: rgba(255, 255, 255, 0.7);
     font-size: 14px;
     white-space: nowrap;
-    pointer-events: none;
+}
+
+/* Example other selectable item */
+.other-item {
+    left: 50px;
+    top: 50px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: white;
+}
+
+
+
+
+.gift-box-container {
+    display: inline-block;
+    text-align: center;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.gift-box-container.selectable {
+    cursor: pointer;
+}
+
+.gift-box-container .instructions {
+    margin-top: 15px;
+    color: #666;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+}
+
+.confetti {
+    transform-origin: center;
+    transition: opacity 0.3s;
+}
+
+#lid {
+    transition: transform 1s ease-in-out;
+}
+
+#bow,
+#ribbonHorizontal,
+#ribbonVertical {
+    transition: all 0.8s ease-in-out;
+}
+
+.box-opened #lid {
+    transform: translateY(-80px) translateX(-30px) rotate(-25deg);
+}
+
+.box-opened #bow {
+    transform: scale(0) rotate(360deg);
+    opacity: 0;
+}
+
+.box-opened #ribbonHorizontal,
+.box-opened #ribbonVertical {
+    opacity: 0;
+    transform: scale(0.8);
 }

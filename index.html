@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <div class="snow-globe-container selectable" id="snowGlobe">
+    <div class="snow-globe-container selectable draggable" id="snowGlobe">
         <svg width="300" height="300" viewBox="0 0 300 300" id="globeSvg">
             <defs>
                 <radialGradient id="glassGradient" cx="30%" cy="30%" r="60%">
@@ -29,15 +29,15 @@
 
             <!-- Base of snow globe -->
             <ellipse cx="150" cy="285" rx="80" ry="15" fill="#5d4037" />
-            <rect x="70" y="275" width="160" height="20" fill="#5d4037" />
+            <rect x="70" y="275" width="160" height="10" fill="#5d4037" />
             <ellipse cx="150" cy="275" rx="80" ry="15" fill="#795548" />
 
             <!-- Globe background -->
             <circle cx="150" cy="150" r="135" fill="#1a2a3a" />
             <circle cx="150" cy="150" r="130" fill="url(#bgGradient)" />
 
-            <!-- Snow particles container -->
-            <g id="snowContainer" clip-path="url(#globeClip)"></g>
+            <!-- Snow particles container behind -->
+            <g id="snowContainerBack" clip-path="url(#globeClip)"></g>
 
             <!-- Scene inside globe -->
             <g clip-path="url(#globeClip)">
@@ -48,16 +48,119 @@
                 <rect x="145" y="220" width="10" height="15" fill="#5d4037" />
             </g>
 
+            <!-- Snow particles container front -->
+            <g id="snowContainerFront" clip-path="url(#globeClip)"></g>
+
             <!-- Glass reflection overlay -->
             <circle cx="150" cy="150" r="130" fill="url(#glassGradient)" />
-
-            <!-- Globe border -->
             <circle cx="150" cy="150" r="130" fill="none" stroke="#8ba5c4" stroke-width="3" />
         </svg>
         <div class="instructions">Drag to shake the snow globe!</div>
     </div>
 
+    <div class="gift-box-container selectable" id="giftBox">
+        <svg width="300" height="300" viewBox="0 0 300 300" id="boxSvg">
+            <defs>
+                <linearGradient id="boxGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color: #e74c3c" />
+                    <stop offset="100%" style="stop-color: #c0392b" />
+                </linearGradient>
+    
+                <linearGradient id="lidGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color: #ec7063" />
+                    <stop offset="100%" style="stop-color: #e74c3c" />
+                </linearGradient>
+    
+                <linearGradient id="ribbonGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color: #f4d03f" />
+                    <stop offset="50%" style="stop-color: #f9e79f" />
+                    <stop offset="100%" style="stop-color: #f4d03f" />
+                </linearGradient>
+    
+                <radialGradient id="shineGradient" cx="30%" cy="30%" r="60%">
+                    <stop offset="0%" style="stop-color: rgba(255,255,255,0.4)" />
+                    <stop offset="100%" style="stop-color: rgba(255,255,255,0)" />
+                </radialGradient>
+    
+                <filter id="shadow">
+                    <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3" />
+                </filter>
+            </defs>
+    
+            <!-- Shadow under box -->
+            <ellipse cx="150" cy="285" rx="70" ry="12" fill="rgba(0,0,0,0.2)" />
+    
+            <!-- Box bottom -->
+            <g id="boxBottom">
+                <rect x="80" y="180" width="140" height="100" fill="url(#boxGradient)" />
+                <rect x="78" y="180" width="8" height="100" fill="#c0392b" opacity="0.6" />
+                <rect x="220" y="180" width="8" height="100" fill="#a93226" opacity="0.6" />
+                <rect x="80" y="278" width="140" height="8" fill="#a93226" opacity="0.6" />
+            </g>
+    
+            <!-- Confetti particles container behind -->
+            <g id="confettiContainerBack"></g>
+    
+            <!-- Lid group (animatable) -->
+            <g id="lid" style="transform-origin: 150px 180px">
+                <rect x="70" y="145" width="160" height="45" fill="url(#shineGradient)" pointer-events="none" />
+                <rect x="70" y="145" width="160" height="45" fill="url(#lidGradient)" filter="url(#shadow)" />
+                <rect x="68" y="145" width="8" height="45" fill="#c0392b" opacity="0.6" />
+                <rect x="230" y="145" width="8" height="45" fill="#a93226" opacity="0.6" />
+                <rect x="70" y="143" width="160" height="8" fill="#ec7063" opacity="0.8" />
+            </g>
+    
+            <!-- Ribbon vertical -->
+            <g id="ribbonVertical">
+                <rect x="140" y="120" width="20" height="160" fill="url(#ribbonGradient)" opacity="0.95" />
+                <rect x="138" y="120" width="4" height="160" fill="#f4d03f" opacity="0.4" />
+                <rect x="158" y="120" width="4" height="160" fill="#d4af37" opacity="0.4" />
+            </g>
+    
+            <!-- Ribbon horizontal -->
+            <g id="ribbonHorizontal">
+                <rect x="70" y="155" width="160" height="20" fill="url(#ribbonGradient)" opacity="0.95" />
+                <rect x="70" y="153" width="160" height="4" fill="#f4d03f" opacity="0.4" />
+                <rect x="70" y="171" width="160" height="4" fill="#d4af37" opacity="0.4" />
+            </g>
+    
+            <!-- Bow on top -->
+            <g id="bow" style="transform-origin: 150px 155px">
+                <!-- Left loop -->
+                <ellipse cx="120" cy="145" rx="28" ry="22" fill="url(#ribbonGradient)" transform="rotate(-25 120 145)" />
+                <ellipse cx="120" cy="145" rx="18" ry="14" fill="#f4d03f" opacity="0.3" transform="rotate(-25 120 145)" />
+    
+                <!-- Right loop -->
+                <ellipse cx="180" cy="145" rx="28" ry="22" fill="url(#ribbonGradient)" transform="rotate(25 180 145)" />
+                <ellipse cx="180" cy="145" rx="18" ry="14" fill="#f4d03f" opacity="0.3" transform="rotate(25 180 145)" />
+    
+                <!-- Ribbon tails -->
+                <path d="M 140 165 L 135 185 L 125 180 L 130 170 Z" fill="url(#ribbonGradient)" opacity="0.9" />
+                <path d="M 160 165 L 165 185 L 175 180 L 170 170 Z" fill="url(#ribbonGradient)" opacity="0.9" />
+    
+                <!-- Center knot -->
+                <circle cx="150" cy="155" r="14" fill="#f4d03f" />
+                <circle cx="150" cy="155" r="10" fill="url(#ribbonGradient)" />
+                <circle cx="145" cy="150" r="5" fill="rgba(255,255,255,0.4)" />
+            </g>
+    
+            <!-- Confetti particles container front -->
+            <g id="confettiContainerFront"></g>
+    
+            <!-- Shine overlay on box -->
+            <rect x="80" y="180" width="140" height="100" fill="url(#shineGradient)" pointer-events="none" />
+        </svg>
+        <div class="instructions">Click to open the gift box!</div>
+    </div>
+
+    <!-- Example of another selectable item -->
+    <div class="selectable other-item" id="testBox">
+        Drag me too!
+    </div>
+
+    <!-- Load selectable first, then snowglobe -->
     <script src="js/selectable.js"></script>
+    <script src="js/draggable.js"></script>
     <script src="js/snowglobe.js"></script>
     <script src="js/history.js"></script>
     <script src="app.js"></script>
