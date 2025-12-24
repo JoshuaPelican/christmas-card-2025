@@ -1,7 +1,7 @@
 // Configuration
 const CONFIG = {
-    particleCount: 200,
-    gravity: 0.015,
+    particleCount: 300,
+    gravity: 0.01,
     minSize: 2,
     maxSize: 5,
     globeRadius: 130,
@@ -13,8 +13,8 @@ const CONFIG = {
     swirlDecayRate: 0.999,
     
     // Motion sensitivity
-    motionMultiplier: 1.2,
-    motionThreshold: 0.5,
+    motionMultiplier: 1.5,
+    motionThreshold: 0.25,
     liftForce: 0.18,
     spreadForce: 0.08,
     
@@ -120,7 +120,7 @@ function constrainToGlobe(particle) {
             particle.vx *= 0.3;
             particle.vy *= 0.3;
         }
-        
+
         // Add inward push and downward bias to prevent sticking
         particle.vx -= normalX * 0.15;
         particle.vy -= normalY * 0.15;
@@ -153,9 +153,6 @@ function handleMotion(motion) {
     particles.forEach(particle => {
         const atGround = isAtGround(particle);
         
-        particle.vx += motion.x * 500 * motionMultiplier;
-        particle.vy += motion.y * 500 * motionMultiplier;
-
         // Only lift particles that are at rest on the ground
         if (atGround && particle.isResting) {
             particle.isResting = false;
@@ -169,8 +166,18 @@ function handleMotion(motion) {
             const spreadDirection = dx > 0 ? 1 : -1;
             
             particle.vx += spreadDirection * CONFIG.spreadForce * moveIntensity * Math.random();
+
+            // Apply acceleration (x affects horizontal, y affects vertical)
+            const disturbFactor = CONFIG.motionMultiplier * (0.5 + Math.random() * 0.5);
+            particle.vx += motion.x * disturbFactor;
+            particle.vy += motion.y * disturbFactor;
+            
+            // Add some upward kick for strong movements
+            if (moveIntensity > 2) {
+                particle.vy -= moveIntensity * 0.1 * Math.random();
+            }
         }
-        
+
         // For airborne particles, add gentle swirling motion
         if (!atGround) {
             const angleNoise = (Math.random() - 0.5) * moveIntensity * 0.1;
