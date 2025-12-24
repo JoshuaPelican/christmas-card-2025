@@ -1,6 +1,6 @@
 // Configuration
 const CONFIG = {
-    particleCount: 200,
+    particleCount: 250,
     gravity: 0.015,
     minSize: 2,
     maxSize: 5,
@@ -13,10 +13,10 @@ const CONFIG = {
     swirlDecayRate: 0.998,
     
     // Motion sensitivity
-    motionMultiplier: 0.8,
-    motionThreshold: 0.3,
-    liftForce: 0.15,
-    spreadForce: 0.08,
+    motionMultiplier: 1.1,
+    motionThreshold: 0.5,
+    liftForce: 0.17,
+    spreadForce: 0.09,
     
     // Settling settings
     groundLevel: 280,
