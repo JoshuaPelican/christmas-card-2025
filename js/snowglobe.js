@@ -10,13 +10,13 @@ const CONFIG = {
     
     // Swirl settings
     swirlStrength: 0.09,
-    swirlDecayRate: 0.999,
+    swirlDecayRate: 0.998,
     
     // Motion sensitivity
-    motionMultiplier: 1,
+    motionMultiplier: 0.8,
     motionThreshold: 0.3,
-    liftForce: 0.175,
-    spreadForce: 0.1,
+    liftForce: 0.15,
+    spreadForce: 0.08,
     
     // Settling settings
     groundLevel: 280,
@@ -115,6 +115,15 @@ function constrainToGlobe(particle) {
             particle.vy -= 1.8 * dotProduct * normalY;
             particle.vx *= 0.3;
             particle.vy *= 0.3;
+        }
+        
+        // Add inward push and downward bias to prevent sticking
+        particle.vx -= normalX * 0.15;
+        particle.vy -= normalY * 0.15;
+        
+        // Extra downward force if particle is on the sides
+        if (Math.abs(dx) > CONFIG.globeRadius * 0.5) {
+            particle.vy += 0.08;
         }
     }
 }
