@@ -7,6 +7,9 @@ class App{
     init(){
         this.history.register('/', (data) => this.displayHome(data.params.for))
         this.history.init();
+
+        if(isDesktop)
+            document.getElementById("instructions").innerText = "drag the globe to shake it"
     }
 
     displayHome(forID){

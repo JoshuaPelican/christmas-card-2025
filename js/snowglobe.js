@@ -1,6 +1,6 @@
 // Configuration
 const CONFIG = {
-    particleCount: 250,
+    particleCount: 200,
     gravity: 0.015,
     minSize: 2,
     maxSize: 5,
@@ -10,13 +10,13 @@ const CONFIG = {
     
     // Swirl settings
     swirlStrength: 0.09,
-    swirlDecayRate: 0.998,
+    swirlDecayRate: 0.999,
     
     // Motion sensitivity
-    motionMultiplier: 1.1,
+    motionMultiplier: 1.2,
     motionThreshold: 0.5,
-    liftForce: 0.17,
-    spreadForce: 0.09,
+    liftForce: 0.18,
+    spreadForce: 0.08,
     
     // Settling settings
     groundLevel: 280,
@@ -30,6 +30,10 @@ const CONFIG = {
 let particles = [];
 let swirlEnergy = 0;
 let lastMotion = { x: 0, y: 0, z: 0 };
+let isDragging = false;
+let lastDragPos = { x: 0, y: 0 };
+let dragVelocity = { x: 0, y: 0 };
+let isDesktop = !('ontouchstart' in window);
 
 // DOM elements
 const container = document.getElementById('snowGlobe');
@@ -149,6 +153,9 @@ function handleMotion(motion) {
     particles.forEach(particle => {
         const atGround = isAtGround(particle);
         
+        particle.vx += motion.x * 500 * motionMultiplier;
+        particle.vy += motion.y * 500 * motionMultiplier;
+
         // Only lift particles that are at rest on the ground
         if (atGround && particle.isResting) {
             particle.isResting = false;
@@ -282,18 +289,82 @@ async function initMotion() {
     }
 }
 
+// Desktop drag handlers
+function handleDragStart(e) {
+    isDragging = true;
+    lastDragPos = { x: e.clientX, y: e.clientY };
+    dragVelocity = { x: 0, y: 0 };
+    container.style.cursor = 'grabbing';
+}
+
+function handleDragMove(e) {
+    if (!isDragging) return;
+    
+    const currentPos = { x: e.clientX, y: e.clientY };
+    const deltaX = currentPos.x - lastDragPos.x;
+    const deltaY = currentPos.y - lastDragPos.y;
+    
+    dragVelocity = { x: deltaX, y: deltaY };
+    
+    // Simulate motion from drag
+    const simulatedMotion = {
+        x: deltaX * 0.5,
+        y: deltaY * 0.5,
+        z: 0
+    };
+    
+    handleMotion(simulatedMotion);
+    
+    lastDragPos = currentPos;
+}
+
+function handleDragEnd(e) {
+    if (!isDragging) return;
+    
+    isDragging = false;
+    container.style.cursor = 'grab';
+    
+    // Give final momentum based on drag velocity
+    const finalMotion = {
+        x: dragVelocity.x * 2,
+        y: dragVelocity.y * 2,
+        z: 0
+    };
+    
+    handleMotion(finalMotion);
+}
+
+// Setup desktop drag controls
+function setupDesktopControls() {
+    if (!isDesktop) return;
+    
+    container.style.cursor = 'grab';
+    container.style.userSelect = 'none';
+    
+    container.addEventListener('mousedown', handleDragStart);
+    document.addEventListener('mousemove', handleDragMove);
+    document.addEventListener('mouseup', handleDragEnd);
+    
+    console.log('Desktop drag controls enabled');
+}
+
 // Initialize
 createParticles();
 updatePhysics();
 
-// Start motion detection (may need user interaction on iOS)
-if (MotionAPI.isSupported()) {
-    // Try to start immediately
-    initMotion().catch(() => {
-        // If it fails, wait for user interaction
-        console.log('Tap screen to enable motion');
-        document.addEventListener('click', () => {
-            initMotion();
-        }, { once: true });
-    });
+// Setup controls based on device type
+if (isDesktop) {
+    setupDesktopControls();
+} else {
+    // Start motion detection (may need user interaction on iOS)
+    if (MotionAPI.isSupported()) {
+        // Try to start immediately
+        initMotion().catch(() => {
+            // If it fails, wait for user interaction
+            console.log('Tap screen to enable motion');
+            document.addEventListener('click', () => {
+                initMotion();
+            }, { once: true });
+        });
+    }
 }
