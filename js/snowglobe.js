@@ -13,7 +13,7 @@ const CONFIG = {
     swirlDecayRate: 0.999,
     
     // Motion sensitivity
-    motionMultiplier: 3,
+    motionMultiplier: 0.25,
     
     // Settling settings
     groundLevel: 280,
