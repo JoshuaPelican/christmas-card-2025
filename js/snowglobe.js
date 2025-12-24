@@ -12,6 +12,9 @@ const CONFIG = {
     swirlStrength: 0.09,
     swirlDecayRate: 0.999,
     
+    // Motion sensitivity
+    motionMultiplier: 3,
+    
     // Settling settings
     groundLevel: 280,
     settleThreshold: 0.1,
@@ -23,16 +26,17 @@ const CONFIG = {
 // State
 let particles = [];
 let swirlEnergy = 0;
-let accumulatedMovement = { x: 0, y: 0 };
+let lastMotion = { x: 0, y: 0, z: 0 };
 
 // DOM elements
 const container = document.getElementById('snowGlobe');
 const snowContainerFront = document.getElementById('snowContainerFront');
-const snowContainerBack = document.getElementById('snowContainerBack')
+const snowContainerBack = document.getElementById('snowContainerBack');
 
 // Initialize particles at rest at the bottom
 function createParticles() {
     snowContainerFront.innerHTML = '';
+    snowContainerBack.innerHTML = '';
     particles = [];
 
     for (let i = 0; i < CONFIG.particleCount; i++) {
@@ -115,6 +119,33 @@ function constrainToGlobe(particle) {
 function updateParticlePosition(particle) {
     particle.element.setAttribute('cx', particle.x);
     particle.element.setAttribute('cy', particle.y);
+}
+
+function handleMotion(motion) {
+    // Calculate motion intensity
+    const moveIntensity = Math.sqrt(motion.x * motion.x + motion.y * motion.y);
+    
+    // Add to swirl energy
+    swirlEnergy = Math.min(swirlEnergy + moveIntensity * 0.1, 10);
+    
+    // Apply motion to particles
+    particles.forEach(particle => {
+        if (moveIntensity > 0.5) {
+            particle.isResting = false;
+        }
+        
+        // Apply acceleration (x affects horizontal, y affects vertical)
+        const disturbFactor = CONFIG.motionMultiplier * (0.5 + Math.random() * 0.5);
+        particle.vx += motion.x * disturbFactor;
+        particle.vy += motion.y * disturbFactor;
+        
+        // Add some upward kick for strong movements
+        if (moveIntensity > 2) {
+            particle.vy -= moveIntensity * 0.1 * Math.random();
+        }
+    });
+    
+    lastMotion = motion;
 }
 
 function updatePhysics() {
@@ -204,71 +235,34 @@ function updatePhysics() {
     requestAnimationFrame(updatePhysics);
 }
 
-
-// Called when dragging starts
-function onDragStart(x, y) {
-    accumulatedMovement = { x: 0, y: 0 };
-}
-
-// Called during drag movement
-function onDragMove(deltaX, deltaY, x, y) {
-
-    // Accumulate movement
-    accumulatedMovement.x += deltaX;
-    accumulatedMovement.y += deltaY;
+// Initialize motion detection
+async function initMotion() {
+    if (!MotionAPI.isSupported()) {
+        console.log('Motion not supported on this device');
+        return;
+    }
     
-    // Calculate movement intensity
-    const moveIntensity = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    
-    // Add to swirl energy
-    swirlEnergy = Math.min(swirlEnergy + moveIntensity * 0.05, 10);
-
-    // Disturb particles
-    particles.forEach(particle => {
-        particle.isResting = false;
-        
-        const disturbFactor = 0.2 * (0.5 + Math.random() * 0.5);
-        particle.vx += deltaX * disturbFactor;
-        particle.vy += deltaY * disturbFactor;
-        
-        if (moveIntensity > 2) {
-            particle.vy -= moveIntensity * 0.1 * Math.random();
-        }
-    });
-}
-
-// Called when dragging ends
-function onDragEnd() {    
-    // Determine swirl direction
-    const moveAngle = Math.atan2(accumulatedMovement.y, accumulatedMovement.x);
-    
-    // Give particles final push
-    particles.forEach(particle => {
-        const pushStrength = swirlEnergy * 0.3 * Math.random() * ((accumulatedMovement.x + accumulatedMovement.y / 2) * 0.1);
-        particle.vx += Math.cos(moveAngle + Math.PI/2) * pushStrength;
-        particle.vy += Math.sin(moveAngle + Math.PI/2) * pushStrength;
-    });
-    
-    // Reset accumulated movement
-    accumulatedMovement = { x: 0, y: 0 };
-}
-
-// Register with selectable system
-// Wait a moment for selectable.js to initialize
-function registerWithSelectable() {
-    if (typeof onSelectableDrag === 'function') {
-        onSelectableDrag('snowGlobe', {
-            onStart: onDragStart,
-            onMove: onDragMove,
-            onEnd: onDragEnd
-        });
+    const granted = await MotionAPI.requestPermission();
+    if (granted) {
+        MotionAPI.start(handleMotion);
+        console.log('Motion detection started');
     } else {
-        // Retry if selectable.js hasn't loaded yet
-        setTimeout(registerWithSelectable, 10);
+        console.log('Motion permission denied');
     }
 }
 
 // Initialize
 createParticles();
 updatePhysics();
-registerWithSelectable();
+
+// Start motion detection (may need user interaction on iOS)
+if (MotionAPI.isSupported()) {
+    // Try to start immediately
+    initMotion().catch(() => {
+        // If it fails, wait for user interaction
+        console.log('Tap screen to enable motion');
+        document.addEventListener('click', () => {
+            initMotion();
+        }, { once: true });
+    });
+}
