@@ -13,7 +13,10 @@ const CONFIG = {
     swirlDecayRate: 0.999,
     
     // Motion sensitivity
-    motionMultiplier: 0.25,
+    motionMultiplier: 0.8,
+    motionThreshold: 0.3,
+    liftForce: 0.15,
+    spreadForce: 0.08,
     
     // Settling settings
     groundLevel: 280,
@@ -123,25 +126,44 @@ function updateParticlePosition(particle) {
 
 function handleMotion(motion) {
     // Calculate motion intensity
-    const moveIntensity = Math.sqrt(motion.x * motion.x + motion.y * motion.y);
+    const moveIntensity = Math.sqrt(motion.x * motion.x + motion.y * motion.y + motion.z * motion.z);
     
-    // Add to swirl energy
-    swirlEnergy = Math.min(swirlEnergy + moveIntensity * 0.1, 10);
+    // Only respond to significant motion
+    if (moveIntensity < CONFIG.motionThreshold) {
+        return;
+    }
     
-    // Apply motion to particles
+    // Add to swirl energy gradually
+    swirlEnergy = Math.min(swirlEnergy + moveIntensity * 0.05, 8);
+    
+    // Apply motion to particles - spread them out instead of bunching
     particles.forEach(particle => {
-        if (moveIntensity > 0.5) {
+        const atGround = isAtGround(particle);
+        
+        // Only lift particles that are at rest on the ground
+        if (atGround && particle.isResting) {
             particle.isResting = false;
+            
+            // Lift upward with some randomness
+            particle.vy -= CONFIG.liftForce * moveIntensity * (0.8 + Math.random() * 0.4);
+            
+            // Spread particles outward from center
+            const dx = particle.x - CONFIG.globeCenterX;
+            const distFromCenter = Math.abs(dx);
+            const spreadDirection = dx > 0 ? 1 : -1;
+            
+            particle.vx += spreadDirection * CONFIG.spreadForce * moveIntensity * Math.random();
         }
         
-        // Apply acceleration (x affects horizontal, y affects vertical)
-        const disturbFactor = CONFIG.motionMultiplier * (0.5 + Math.random() * 0.5);
-        particle.vx += motion.x * disturbFactor;
-        particle.vy += motion.y * disturbFactor;
-        
-        // Add some upward kick for strong movements
-        if (moveIntensity > 2) {
-            particle.vy -= moveIntensity * 0.1 * Math.random();
+        // For airborne particles, add gentle swirling motion
+        if (!atGround) {
+            const angleNoise = (Math.random() - 0.5) * moveIntensity * 0.1;
+            particle.vx += angleNoise;
+            
+            // Small upward boost for floating particles
+            if (moveIntensity > 1) {
+                particle.vy -= CONFIG.liftForce * 0.3 * Math.random();
+            }
         }
     });
     
@@ -192,8 +214,8 @@ function updatePhysics() {
 
         // Friction
         if (atGround) {
-            particle.vx *= CONFIG.groundFriction;
-            particle.vy *= CONFIG.groundFriction;
+            particle.vx *= 0.92; // Stronger ground friction
+            particle.vy *= 0.92;
             
             if (speed < CONFIG.settleThreshold) {
                 particle.vx *= 0.8;
@@ -206,8 +228,8 @@ function updatePhysics() {
                 particle.y = groundY;
             }
         } else {
-            particle.vx *= CONFIG.airFriction;
-            particle.vy *= CONFIG.airFriction;
+            particle.vx *= 0.98; // Slower air friction for gentle floating
+            particle.vy *= 0.98;
         }
 
         // Update position
