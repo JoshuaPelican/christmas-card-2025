@@ -1,7 +1,7 @@
 // Configuration
 const CONFIG = {
     particleCount: 300,
-    gravity: 0.01,
+    gravity: 0.007,
     minSize: 2,
     maxSize: 5,
     globeRadius: 130,
@@ -10,7 +10,7 @@ const CONFIG = {
     
     // Swirl settings
     swirlStrength: 0.09,
-    swirlDecayRate: 0.999,
+    swirlDecayRate: 0.997,
     
     // Motion sensitivity
     motionMultiplier: 1.5,
@@ -147,7 +147,7 @@ function handleMotion(motion) {
     }
     
     // Add to swirl energy gradually
-    swirlEnergy = Math.min(swirlEnergy + moveIntensity * 0.05, 8);
+    swirlEnergy = swirlEnergy + moveIntensity * 0.025;
     
     // Apply motion to particles - spread them out instead of bunching
     particles.forEach(particle => {
