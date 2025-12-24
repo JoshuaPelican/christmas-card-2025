@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+
 }
 
 html, body {
@@ -10,7 +11,6 @@ html, body {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     font-family: Arial, sans-serif;
     overflow: hidden;
-
     color: aliceblue;
 }
 body{
@@ -22,6 +22,17 @@ body{
     justify-content: space-between;
 }
 
+h1{
+    font-family: "Berkshire Swash", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+p{
+    font-family: "Delius", cursive;
+    font-weight: 400;
+    font-style: normal;
+}
 
 /* Snow globe specific styles */
 .snow-globe-container, .snow-globe-container> * {    
@@ -40,6 +51,10 @@ body{
 
 body > p{
     padding: 20px 0;
+}
+
+#instructions{
+    color: #e2e2ffde;
 }
 
 @media (max-width: 768px){
