@@ -1,6 +1,6 @@
 // Configuration
 const CONFIG = {
-    particleCount: 300,
+    particleCount: 225,
     gravity: 0.007,
     minSize: 2,
     maxSize: 5,
