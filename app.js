@@ -13,8 +13,10 @@ class App{
     }
 
     displayHome(forID){
-        document.title = `${forID}'s Christmas Card 2025`
-        document.getElementById("title").innerText = `Merry Christmas, ${forID}!`
+        if(forID){
+            document.title = `${forID}'s Christmas Card 2025`
+            document.getElementById("title").innerText = `Merry Christmas, ${forID}!`
+        }
     }
 }
 
