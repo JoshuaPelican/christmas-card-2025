@@ -363,15 +363,17 @@ updatePhysics();
 if (isDesktop) {
     setupDesktopControls();
 } else {
-    // Start motion detection (may need user interaction on iOS)
-    if (MotionAPI.isSupported()) {
-        // Try to start immediately
-        initMotion().catch(() => {
-            // If it fails, wait for user interaction
-            console.log('Tap screen to enable motion');
-            document.addEventListener('click', () => {
-                initMotion();
-            }, { once: true });
-        });
+    // Check if permission is needed (iOS 13+)
+    const needsPermission = typeof DeviceMotionEvent.requestPermission === 'function';
+    
+    if (needsPermission) {
+        // iOS: Wait for user tap
+        document.getElementById('instructions').innerText = "tap the screen to enable motion detection"
+        document.addEventListener('click', () => {
+            initMotion();
+        }, { once: true });
+    } else {
+        // Android: Start immediately
+        initMotion();
     }
 }
