@@ -371,6 +371,7 @@ if (isDesktop) {
         document.getElementById('instructions').innerText = "tap the screen to enable motion detection"
         document.addEventListener('click', () => {
             initMotion();
+            document.getElementById("instructions").innerText = "shake your phone to shake the globe"
         }, { once: true });
     } else {
         // Android: Start immediately
